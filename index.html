@@ -1,167 +1,199 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Happy Birthday Ahmed</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Happy Birthday Ahmed — Super Advanced</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+  :root{
+    --bg1: #0f172a;
+    --bg2: #071129;
+    --glass: rgba(255,255,255,0.06);
+    --accent-a: #00ff99;
+    --accent-b: #00ffaa;
+    --accent-c: #7affb0;
+    --max-font: clamp(48px, 12vw, 160px);
+    --shadow: 0 10px 40px rgba(2,6,23,0.7);
+    --reduced: no-preference;
+  }
 
-html, body {
-  margin: 0;
-  height: 100%;
-  background: black;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Orbitron', sans-serif;
-  color: #00ff99;
-  text-align: center;
-}
+  @media (prefers-reduced-motion: reduce) {
+    :root { --reduced: reduce; }
+  }
 
-h1 {
-  margin: 0.2em 0;
-  font-size: clamp(40px, 10vw, 120px);
-  text-transform: uppercase;
-  background: linear-gradient(90deg, #00ff88, #00ffaa, #00ffcc);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: glowmove 5s linear infinite;
-  text-shadow: 0 0 20px #00ff88;
-}
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: 'Orbitron', Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    background: linear-gradient(180deg,var(--bg1), var(--bg2));
+    color: white;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
 
-@keyframes glowmove {
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
+  .stage{
+    min-height:100%;
+    display:grid;
+    place-items:center;
+    gap:24px;
+    padding:4vmin;
+    position:relative;
+  }
 
-/* Subtle moving light beam */
-.blade {
-  position: absolute;
-  top: 0;
-  left: -50%;
-  width: 40%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0, 255, 128, 0.15), transparent);
-  transform: skewX(-20deg);
-  filter: blur(25px);
-  animation: bladeMove 4s linear infinite;
-}
-@keyframes bladeMove {
-  0% { left: -60%; }
-  100% { left: 160%; }
-}
+  .card{
+    padding:4vmin;
+    border-radius:28px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.04);
+    text-align:center;
+  }
 
-/* Button */
-button {
-  margin-top: 2em;
-  padding: 1em 2em;
-  font-size: 1rem;
-  font-weight: bold;
-  background: linear-gradient(90deg, #00ff88, #00ffaa);
-  color: black;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 0 20px #00ffaa;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  z-index: 10;
-}
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 35px #00ff88;
-}
+  .headline{
+    text-align:center;
+    user-select:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    line-height:1.1;
+  }
 
-/* Canvas for particles */
-canvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
+  .headline h1 {
+    margin: 0.1em 0;
+    font-size: var(--max-font);
+    background: linear-gradient(90deg, var(--accent-a), var(--accent-b), var(--accent-c), var(--accent-a));
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 6s linear infinite;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    filter: drop-shadow(0 0 15px rgba(0,255,128,0.6));
+  }
+
+  @keyframes shine {
+    0% { background-position: 0% center; }
+    100% { background-position: 300% center; }
+  }
+
+  .controls{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    margin-top:1.2rem;
+  }
+  .btn{
+    background:linear-gradient(90deg,var(--accent-a),var(--accent-b));
+    color:#081022;
+    padding:.8rem 1.2rem;
+    border-radius:12px;
+    border:none;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .btn:hover {
+    transform:scale(1.05);
+    box-shadow:0 0 35px var(--accent-b);
+  }
+  .btn:active { transform:translateY(1px) }
+
+  #confetti{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:999;
+  }
+
+  @media (max-width:520px){
+    .headline h1 { font-size: clamp(36px, 12vw, 80px); }
+  }
 </style>
 </head>
-
 <body>
-  <div class="blade"></div>
+<canvas id="confetti"></canvas>
 
-  <h1>Ahmed</h1>
-  <h1>Happy</h1>
-  <h1>Birthday</h1>
+<main class="stage">
+  <section class="card">
+    <div class="headline">
+      <h1>Happy</h1>
+      <h1>Birthday</h1>
+      <h1>Ahmed</h1>
+    </div>
+  </section>
 
-  <button id="particlesBtn">✨ Particles</button>
-
-  <canvas id="particles"></canvas>
+  <div class="controls">
+    <button id="sprinkle" class="btn">🎉 Sprinkle</button>
+    <button id="big" class="btn">✨ Rain</button>
+  </div>
+</main>
 
 <script>
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-let particles = [];
-let width = window.innerWidth;
-let height = window.innerHeight;
-canvas.width = width;
-canvas.height = height;
+(() => {
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  let particles = [];
+  let running = true;
+  let dpr = window.devicePixelRatio || 1;
 
-window.addEventListener("resize", () => {
-  width = window.innerWidth;
-  height = window.innerHeight;
-  canvas.width = width;
-  canvas.height = height;
-});
-
-class Particle {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.vx = (Math.random() - 0.5) * 3;
-    this.vy = (Math.random() - 0.5) * 3;
-    this.life = 60 + Math.random() * 40;
-    this.size = 2 + Math.random() * 4;
-    this.color = `hsl(${100 + Math.random() * 40}, 100%, 60%)`;
+  function resize(){
+    canvas.width = innerWidth * dpr;
+    canvas.height = innerHeight * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
   }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.life--;
-    this.size *= 0.97;
-  }
-  draw() {
-    ctx.beginPath();
-    ctx.fillStyle = this.color;
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = this.color;
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
+  window.addEventListener('resize', resize);
+  resize();
 
-function spawnParticles() {
-  const cx = width / 2;
-  const cy = height / 2;
-  for (let i = 0; i < 80; i++) {
-    particles.push(new Particle(cx, cy));
+  const rand = (a,b)=>Math.random()*(b-a)+a;
+  const colors=['#00ff99','#00ffaa','#7affb0','#aaffcc','#55ff99'];
+
+  function spawn(x,y,n=100,f=1){
+    for(let i=0;i<n;i++){
+      const angle=rand(0,Math.PI*2);
+      const speed=rand(2,12)*f;
+      particles.push({
+        x,y,
+        vx:Math.cos(angle)*speed,
+        vy:Math.sin(angle)*speed-2,
+        size:rand(2,6),
+        color:colors[Math.floor(Math.random()*colors.length)],
+        life:rand(1.5,3),
+        t:0
+      });
+    }
   }
-}
 
-function animate() {
-  ctx.clearRect(0, 0, width, height);
-  particles = particles.filter(p => p.life > 0);
-  for (const p of particles) {
-    p.update();
-    p.draw();
+  function animate(){
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    const now=performance.now()/1000;
+    for(let i=particles.length-1;i>=0;i--){
+      const p=particles[i];
+      p.t+=0.016;
+      if(p.t>p.life){particles.splice(i,1);continue;}
+      p.vy+=0.1;
+      p.x+=p.vx;
+      p.y+=p.vy;
+      ctx.globalAlpha=1-p.t/p.life;
+      ctx.fillStyle=p.color;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+      ctx.fill();
+    }
+    requestAnimationFrame(animate);
   }
-  requestAnimationFrame(animate);
-}
+  animate();
 
-animate();
-
-document.getElementById("particlesBtn").addEventListener("click", () => {
-  spawnParticles();
-});
+  const sprinkle=document.getElementById('sprinkle');
+  const big=document.getElementById('big');
+  sprinkle.addEventListener('click',()=>{
+    spawn(innerWidth/2,innerHeight/2,150,1);
+  });
+  big.addEventListener('click',()=>{
+    spawn(rand(0,innerWidth),rand(0,innerHeight/2),400,1.6);
+  });
+})();
 </script>
 </body>
 </html>
