@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Happy birthday Ahmed — super advanced</title>
+<style>
+  :root{
+    --bg1: #0f172a;
+    --bg2: #071129;
+    --glass: rgba(255,255,255,0.06);
+    --accent-a: #ff6b6b;
+    --accent-b: #ffd86b;
+    --accent-c: #7afcff;
+    --max-font: clamp(48px, 12vw, 160px);
+    --shadow: 0 10px 40px rgba(2,6,23,0.7);
+    --reduced: no-preference;
+  }
+
+  /* Respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    :root { --reduced: reduce; }
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(255,107,107,0.06), transparent 8%),
+                radial-gradient(900px 400px at 90% 90%, rgba(122,252,255,0.03), transparent 10%),
+                linear-gradient(180deg,var(--bg1), var(--bg2));
+    color: white;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* Layout: perfect centered stack */
+  .stage{
+    min-height:100%;
+    display:grid;
+    place-items:center;
+    gap:24px;
+    padding:4vmin;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* Subtle glass panel for contrast */
+  .card{
+    width:100%;
+    max-width:1200px;
+    padding:3vmin;
+    border-radius:28px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.04);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* Big centered text container */
+  .headline{
+    text-align:center;
+    position:relative;
+    line-height:0.9;
+    user-select:none;
+  }
+
+  /* Make text responsive huge */
+  .headline svg{
+    width:100%;
+    height:auto;
+    display:block;
+    margin:0 auto;
+    max-height: min(60vh, 520px);
+  }
+
+  /* Subtle floating */
+  @media (prefers-reduced-motion: no-preference){
+    .card{ animation: float 8s ease-in-out infinite; }
+    @keyframes float{
+      0%{ transform: translateY(0) }
+      50%{ transform: translateY(-10px) }
+      100%{ transform: translateY(0) }
+    }
+  }
+
+  /* CTA button to trigger confetti */
+  .controls{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    margin-top:1.2rem;
+  }
+  .btn{
+    background:linear-gradient(90deg,var(--accent-a),var(--accent-b));
+    color:#081022;
+    padding:.8rem 1.2rem;
+    border-radius:12px;
+    border:none;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transform: translateZ(0);
+  }
+  .btn:active{ transform: translateY(1px) }
+
+  /* Footer small help text */
+  .help{
+    color: rgba(255,255,255,0.6);
+    font-size:0.9rem;
+    margin-top:.6rem;
+    text-align:center;
+  }
+
+  /* Canvas for confetti sits absolutely on top */
+  #confetti{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1200;
+  }
+
+  /* Accessibility: focus outlines */
+  .btn:focus{ outline: 3px solid rgba(255,255,255,0.12); outline-offset:3px; }
+
+  /* Small screens: shrink padding */
+  @media (max-width:520px){
+    .card{ padding:2vmin; border-radius:18px; }
+  }
+</style>
+</head>
+<body>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <main class="stage" role="main" aria-labelledby="hb-heading">
+    <section class="card" aria-hidden="false">
+      <div class="headline" role="img" aria-label="Happy birthday Ahmed">
+        <!-- SVG text with animated gradient mask + filter for glow -->
+        <svg viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid meet" role="presentation" aria-hidden="true">
+          <defs>
+            <!-- Animated linear gradient -->
+            <linearGradient id="g1" x1="0%" x2="100%" y1="0%" y2="0%">
+              <stop offset="0%" stop-color="#ff6b6b"/>
+              <stop offset="40%" stop-color="#ffd86b"/>
+              <stop offset="70%" stop-color="#7afcff"/>
+              <stop offset="100%" stop-color="#b57bff"/>
+              <!-- animateGradient position -->
+              <animate attributeName="x1" values="0%;100%;0%" dur="8s" repeatCount="indefinite" />
+              <animate attributeName="x2" values="100%;200%;100%" dur="8s" repeatCount="indefinite" />
+            </linearGradient>
+
+            <!-- Soft blur for glow -->
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="8" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+
+            <!-- A textured noise pattern for subtle grain -->
+            <pattern id="grain" patternUnits="userSpaceOnUse" width="8" height="8">
+              <rect width="8" height="8" fill="rgba(255,255,255,0.01)"></rect>
+              <circle cx="4" cy="4" r="0.7" fill="rgba(255,255,255,0.02)"></circle>
+            </pattern>
+
+            <!-- Mask to reveal gradient only on text fill -->
+            <mask id="m1">
+              <rect width="100%" height="100%" fill="black"/>
+              <text id="hb" x="50%" y="60%" text-anchor="middle" font-family="Inter, Roboto, Arial" font-weight="800" font-size="160" fill="white"
+                    style="letter-spacing:3px;">
+                Happy birthday Ahmed
+              </text>
+            </mask>
+          </defs>
+
+          <!-- Background stroke for depth -->
+          <text x="50%" y="60%" text-anchor="middle" font-family="Inter, Roboto, Arial" font-weight="900" font-size="160"
+                style="letter-spacing:3px; fill:none; stroke: rgba(0,0,0,0.55); stroke-width:16; paint-order:stroke fill;"
+                transform="translate(0,4)">
+            Happy birthday Ahmed
+          </text>
+
+          <!-- Primary animated gradient fill, masked to text -->
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#g1)" mask="url(#m1)" filter="url(#glow)"></rect>
+
+          <!-- Subtle noise overlay -->
+          <rect width="100%" height="100%" fill="url(#grain)" opacity="0.6"></rect>
+
+          <!-- Thin animated outline stroke (SVG animateMotion trick) -->
+          <text x="50%" y="60%" text-anchor="middle" font-family="Inter, Roboto, Arial" font-weight="800" font-size="160"
+                style="letter-spacing:3px; fill:none; stroke:rgba(255,255,255,0.12); stroke-width:2; mix-blend-mode:overlay;">
+            <animate attributeName="stroke-opacity" values="0.06;0.3;0.06" dur="6s" repeatCount="indefinite" />
+            Happy birthday Ahmed
+          </text>
+        </svg>
+      </div>
+    </section>
+
+    <div class="controls" aria-hidden="false">
+      <button id="sprinkle" class="btn" type="button" title="🎉 Sprinkle confetti">Sprinkle confetti 🎉</button>
+      <button id="big" class="btn" type="button" title="More confetti">Make it rain ✨</button>
+    </div>
+
+    <div class="help" id="hb-heading">
+      Click the buttons (or press <kbd>Enter</kbd>) to trigger a confetti burst. Works with keyboard for accessibility.
+    </div>
+  </main>
+
+<script>
+/*
+  Confetti particle system:
+  - Uses a single canvas covering the viewport.
+  - Lightweight physics with per-particle lifetime and gravity.
+  - Automatically reduces particles on small viewports or when tab is hidden.
+  - Honors prefers-reduced-motion by disabling auto animations.
+*/
+
+(() => {
+  const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  let particles = [];
+  let running = true;
+  let lastTime = performance.now();
+  let dpr = Math.max(1, window.devicePixelRatio || 1);
+
+  function resize() {
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resize, { passive:true });
+  resize();
+
+  // Simple random helpers
+  const rand = (min, max) => Math.random() * (max - min) + min;
+  const choose = (arr) => arr[Math.floor(Math.random()*arr.length)];
+
+  // Colors tuned to the gradient
+  const colors = ['#ff6b6b','#ffd86b','#7afcff','#b57bff','#8aff9a'];
+
+  // Particle constructor
+  function spawn(x, y, count=80, force=1){
+    const limit = Math.min(600, count);
+    for(let i=0;i<limit;i++){
+      const angle = rand(0, Math.PI*2);
+      const speed = rand(2,18) * force;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle)*speed + rand(-2,2),
+        vy: Math.sin(angle)*speed * 0.6 - rand(2,7),
+        size: rand(4,14),
+        life: rand(1.2, 3.0),
+        t: 0,
+        rot: rand(0,Math.PI*2),
+        vr: rand(-0.2,0.2),
+        color: choose(colors),
+        shape: Math.random() < 0.5 ? 'rect' : 'circle',
+        drift: rand(-0.02, 0.02),
+      });
+    }
+  }
+
+  // Control UI
+  const sprinkle = document.getElementById('sprinkle');
+  const big = document.getElementById('big');
+
+  sprinkle.addEventListener('click', (e) => {
+    const rect = document.querySelector('.card').getBoundingClientRect();
+    spawn(rect.left + rect.width/2, rect.top + rect.height/2, 120, 0.9);
+  });
+
+  big.addEventListener('click', (e) => {
+    const rect = document.querySelector('.card').getBoundingClientRect();
+    spawn(rand(0, window.innerWidth), rand(0, window.innerHeight/2), 350, 1.6);
+  });
+
+  // Keyboard accessibility: Enter triggers sprinkle
+  document.addEventListener('keydown', ev => {
+    if(ev.key === 'Enter' || ev.key === ' ') {
+      ev.preventDefault();
+      sprinkle.click();
+    }
+  });
+
+  // Pause when tab hidden
+  const onVisibility = () => {
+    running = !document.hidden;
+    if(running) lastTime = performance.now();
+  };
+  document.addEventListener('visibilitychange', onVisibility);
+
+  // Animation loop
+  function step(now){
+    const dt = Math.min(0.033, (now - lastTime) / 1000); // cap dt
+    lastTime = now;
+    if(!running){
+      requestAnimationFrame(step);
+      return;
+    }
+
+    // Clear with slight fade for motion trail
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+
+    // Update particles
+    for(let i = particles.length - 1; i >= 0; i--){
+      const p = particles[i];
+      p.t += dt;
+      if(p.t > p.life){
+        particles.splice(i,1);
+        continue;
+      }
+      // Physics: gravity + drag + drift
+      p.vy += 30 * dt; // gravity
+      p.vx *= (1 - 0.01*dt*60); // drag
+      p.vy *= (1 - 0.002*dt*60);
+      p.vx += p.drift * dt * 60;
+      p.x += p.vx * dt * 60;
+      p.y += p.vy * dt * 60;
+      p.rot += p.vr;
+
+      // Bounce off bottom softly
+      if(p.y > window.innerHeight - p.size){
+        p.y = window.innerHeight - p.size;
+        p.vy *= -0.45;
+        p.vx *= 0.85;
+      }
+
+      const alpha = 1 - (p.t / p.life);
+      ctx.globalAlpha = alpha;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      if(p.shape === 'rect'){
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+      } else {
+        ctx.beginPath();
+        ctx.fillStyle = p.color;
+        ctx.arc(0,0,p.size/2,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+
+    // Limit particle count for performance
+    if(particles.length > 700) particles.splice(0, particles.length - 700);
+
+    // Continue loop
+    requestAnimationFrame(step);
+  }
+
+  // Initial gentle burst on load, unless reduced motion
+  if(!prefersReduced){
+    const rect = document.querySelector('.card').getBoundingClientRect();
+    spawn(rect.left + rect.width/2, rect.top + rect.height/2, 180, 1.0);
+    // a timed second burst
+    setTimeout(()=> spawn(rand(0, window.innerWidth), rand(0, window.innerHeight/2), 120, 1.2), 600);
+  }
+
+  requestAnimationFrame(step);
+
+  // Expose a small API in case someone wants to trigger programmatically
+  window._ahmedConfetti = {
+    spawnAtCenter(){ const r = document.querySelector('.card').getBoundingClientRect(); spawn(r.left+r.width/2, r.top+r.height/2, 180, 1.3); },
+    spawnAt(x,y,n,f){ spawn(x,y,n||120,f||1); }
+  };
+})();
+</script>
+</body>
+  </html>
