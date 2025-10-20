@@ -3,638 +3,859 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Happy Birthday Ahmed — Neon Blade</title>
-<meta name="description" content="A neon green rainbow blade-style Happy Birthday for Ahmed — advanced single-file experience." />
+<title>Happy Birthday Ahmed — Neon Blade God</title>
+<meta name="description" content="Epic neon blade Happy Birthday for Ahmed — particles, sound, blade sweep, volumetric light, responsive and accessible." />
 <style>
-/* =====================
-   THEME + RESET
-   ===================== */
+/* =============================
+   THEME & RESET
+   ============================= */
 :root{
-  --bg-0: #000000;
-  --bg-1: #020204;
-  --neon-1: #00ff88;
-  --neon-2: #00ffee;
-  --neon-3: #aaff00;
-  --neon-4: #7cf7a6;
+  --bg-1: #000000;
+  --panel: #030303;
+  --neon-a: #00ff88;
+  --neon-b: #00ffee;
+  --neon-c: #aaff00;
   --glass: rgba(255,255,255,0.02);
-  --max-font: clamp(48px, 10vw, 170px);
-  --line-height: 0.86;
-  --particle-count: 120;
-  --pref-reduced: no-preference;
+  --max-font: clamp(44px, 10vw, 160px);
+  --ui-font: 14px;
+  --particle-count-default: 180;
+  --reduced-motion: no-preference;
 }
 
-/* Respect user reduced motion preference */
 @media (prefers-reduced-motion: reduce){
-  :root{ --pref-reduced: reduce; }
+  :root{ --reduced-motion: reduce; }
 }
 
+/* basic reset */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
-  background: linear-gradient(180deg,var(--bg-0) 0%, #030303 60%);
-  color: #dfffe6;
-  font-family: "Orbitron", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family: "Inter", "Orbitron", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  background: radial-gradient(1000px 400px at 10% 10%, rgba(0,40,20,0.08), transparent 7%),
+              linear-gradient(180deg,var(--bg-1), #040506 60%);
+  color: #ecffe9;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
   overflow:hidden;
   display:flex;
   align-items:center;
   justify-content:center;
+  min-height:100vh;
 }
 
-/* Container centers everything and holds layers */
+/* main stage container */
 .stage{
+  width:100%;
+  height:100%;
   position:relative;
-  width:100vw;
-  height:100vh;
   display:grid;
   place-items:center;
+  gap:12px;
+  padding:4vmin;
   isolation:isolate;
-  user-select:none;
 }
 
-/* Background volumetric shafts (subtle) */
-.volumetric{
+/* =============================
+   BACKGROUND LAYERS
+   ============================= */
+
+/* volumetric fog shafts (decor) */
+.volumetric {
   position:absolute;
   inset:0;
   pointer-events:none;
-  overflow:hidden;
   z-index:0;
   mix-blend-mode:screen;
 }
-
-/* soft radial vignette */
-.vignette {
-  position:absolute; inset:0;
-  background:
-    radial-gradient(60% 40% at 50% 40%, rgba(10,255,150,0.05), transparent 25%),
-    radial-gradient(80% 60% at 50% 80%, rgba(0,0,0,0.6), rgba(0,0,0,0.85));
-  z-index:2;
-  pointer-events:none;
+.volumetric .shaft{
+  position:absolute;
+  width:18%;
+  height:140%;
+  top:-20%;
+  background: linear-gradient(180deg, rgba(0,255,136,0.08), rgba(0,0,0,0));
+  filter: blur(40px) saturate(180%);
+  transform: skewX(-12deg);
 }
 
-/* Grain overlay to add texture */
-.grain{
-  position:absolute; inset:0; z-index:2000; pointer-events:none;
-  background-image: radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+/* chromatic bloom overlay to create RGB edges */
+.chromatic {
+  position:absolute; inset:0; z-index:3; pointer-events:none;
+  mix-blend-mode:screen;
+}
+.chromatic::before, .chromatic::after{
+  content:"";
+  position:absolute; inset:0;
+  background: radial-gradient(900px 300px at 50% 40%, rgba(0,255,136,0.07), transparent 15%);
+  filter: blur(28px) saturate(180%);
+  transform: translateX(0);
+}
+.chromatic::before{ transform: translateX(-6px) scale(1.02); opacity:0.85; }
+.chromatic::after{ transform: translateX(6px) scale(1.02); opacity:0.6; }
+
+/* grain for retro texture */
+.grain {
+  position:absolute; inset:0; z-index:60; pointer-events:none;
+  background-image: radial-gradient(rgba(255,255,255,0.02) 0.6px, transparent 0.6px);
   background-size:3px 3px;
   opacity:0.45;
   mix-blend-mode:overlay;
-  transform: translateZ(0);
-  will-change:opacity;
 }
 
-/* Main visual wrapper for text and effects */
-.hero{
+/* subtle vignette */
+.vignette{
+  position:absolute; inset:0; z-index:50; pointer-events:none;
+  background: radial-gradient(70% 50% at 50% 40%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.6) 85%);
+}
+
+/* =============================
+   HERO: SVG TYPE with MASKS & GLOW
+   ============================= */
+
+.hero {
   position:relative;
-  z-index:20;
+  z-index:10;
   display:flex;
   align-items:center;
   justify-content:center;
-  flex-direction:column;
-  gap:12px;
-  text-align:center;
-  padding:4vmin;
-  width:min(1200px, 94vw);
+  width:min(1200px, 96vw);
+  margin:auto;
 }
 
-/* SVG container to ensure crisp text at any size */
 .svg-wrap{
   width:100%;
-  max-width:1100px;
+  max-width:1200px;
   display:block;
 }
 
-/* ARIA-visible heading just for assistive tech (hidden visually) */
-.visually-hidden{
-  position:absolute!important;
-  height:1px; width:1px;
-  overflow:hidden; clip:rect(1px,1px,1px,1px);
-  white-space:nowrap; border:0; padding:0; margin:-1px;
+/* underline for royalty */
+.underline{
+  width:60%;
+  height:4px;
+  border-radius:999px;
+  margin:14px auto 0;
+  background: linear-gradient(90deg, rgba(0,255,136,0.22), rgba(0,255,255,0.18), rgba(170,255,0,0.16));
+  filter: blur(6px) saturate(160%);
+  box-shadow: 0 0 28px rgba(0,255,136,0.06);
 }
 
-/* =====================
-   TYPOGRAPHY - SVG TEXT STYLES
-   ===================== */
-
-/* fallback simple heading for extremely old browsers */
-.fallback{
+/* fallback heading for no-js */
+.fallback {
   display:none;
-  font-weight:800;
+  font-weight:900;
   font-size:var(--max-font);
-  color:var(--neon-1);
-  text-shadow:
-    0 0 6px rgba(0,255,136,0.12),
-    0 0 30px rgba(0,255,136,0.06);
-  transform:translateZ(0);
-  mix-blend-mode:screen;
+  color:var(--neon-a);
+  text-shadow: 0 8px 30px rgba(0,255,136,0.08);
+  text-align:center;
 }
 
-/* =====================
-   BLADE SWEEP + GLINTS
-   ===================== */
-.blade-layer{
-  position:absolute; inset:0; z-index:10; pointer-events:none;
-}
+/* =============================
+   BLADE SWEEP & GLINTS
+   ============================= */
 
-/* thin razor lines layered for depth */
-.blade{
+.blade {
   position:absolute;
-  top:10%;
-  left:-40%;
-  height:80%;
-  width:40%;
-  transform:skewX(-18deg);
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(180,255,214,0.06) 20%,
-    rgba(255,255,255,0.5) 40%,
-    rgba(180,255,214,0.06) 60%,
-    rgba(255,255,255,0) 100%
-  );
+  top:0;
+  left:-60%;
+  width:36%;
+  height:120%;
+  transform:skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), rgba(0,255,136,0.16), transparent);
   filter: blur(20px) saturate(160%);
-  opacity:0.95;
   mix-blend-mode:screen;
-  will-change:left, transform;
-  animation: bladeSweep 3s linear infinite;
+  z-index:6;
+  will-change:left, transform, opacity;
+  animation:blade 3s linear infinite;
+  opacity:0;
 }
 
-/* slightly faster micro blades for razor effect */
-.blade.micro{
-  width:20%;
-  height:85%;
-  top:5%;
-  left:-50%;
-  filter: blur(6px) contrast(140%) brightness(160%);
-  animation-duration:2.1s;
-  opacity:0.85;
+.blade.small{
+  width:18%;
+  height:130%;
+  top:-10%;
+  animation-duration:2.2s;
+  filter: blur(8px) saturate(200%);
+  opacity:0.9;
 }
-
-/* subtle reflective outline */
-.blade.edge{
-  width:10%;
-  height:95%;
-  filter: blur(2px) brightness(220%);
+.blade.fine{
+  width:8%;
+  height:110%;
+  top:2%;
   animation-duration:4s;
+  filter: blur(4px) saturate(260%);
   opacity:0.6;
 }
 
-/* blade animation */
-@keyframes bladeSweep{
-  0%{ left:-60%; transform:skewX(-15deg) translateY(0); opacity:0.0; }
-  10%{ opacity:0.8; }
-  50%{ left:120%; transform:skewX(-18deg) translateY(-4%); opacity:0.95; }
-  100%{ left:160%; opacity:0; transform:skewX(-12deg) translateY(2%); }
+@keyframes blade {
+  0%{ left:-80%; opacity:0; transform: skewX(-18deg) translateY(0); }
+  10%{ opacity:0.9; }
+  50%{ left:120%; transform: skewX(-22deg) translateY(-4%); opacity:1; }
+  100%{ left:160%; opacity:0; transform: skewX(-14deg) translateY(2%); }
 }
 
-/* reduce animations for prefers-reduced-motion */
-@media (prefers-reduced-motion: reduce){
-  .blade{ animation: none; left: 20%; opacity:0.6; }
-  .blade.micro{ animation:none; left: 40%; }
+/* =============================
+   UI CONTROLS (BUTTONS) — minimal & accessible
+   ============================= */
+
+.controls {
+  position: absolute;
+  bottom: min(6vh, 34px);
+  left: 50%;
+  transform: translateX(-50%);
+  display:flex;
+  gap:12px;
+  z-index:40;
+  align-items:center;
+  justify-content:center;
+  pointer-events: auto;
 }
 
-/* =====================
-   NEON STROBE + CHROMATIC ABERRATION
-   ===================== */
-
-.chromatic{
-  position:absolute; inset:0; z-index:15; pointer-events:none; mix-blend-mode:screen;
-  background: radial-gradient(1000px 300px at 50% 40%, rgba(0,255,136,0.08), transparent 20%);
-  filter: blur(40px) saturate(200%);
+.btn {
+  -webkit-tap-highlight-color: transparent;
+  background: linear-gradient(90deg, rgba(0,255,136,0.12), rgba(0,255,255,0.08));
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight:700;
+  font-size:var(--ui-font);
+  color: #d9ffef;
+  cursor:pointer;
+  backdrop-filter: blur(4px) saturate(120%);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  transition: transform .14s ease, box-shadow .14s ease, opacity .14s ease;
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
 }
+.btn:active{ transform: translateY(2px) }
+.btn:focus{ outline: 3px solid rgba(0,255,136,0.12); outline-offset:4px; }
 
-/* fake chromatic layers for subtle RGB split */
-.chromatic::before,
-.chromatic::after{
-  content:"";
-  position:absolute; inset:0;
-  background: linear-gradient(90deg, rgba(0,255,136,0.02), rgba(0,255,255,0.02), rgba(170,255,0,0.02));
-  mix-blend-mode:screen;
-  pointer-events:none;
-}
-.chromatic::before{ transform:translateX(-6px) scale(1.02); filter:blur(18px); opacity:0.85; }
-.chromatic::after{ transform:translateX(6px) scale(1.02); filter:blur(28px); opacity:0.7; }
-
-/* =====================
-   NEON TEXT SHIMMER (SVG uses gradient animation)
-   ===================== */
-
-/* fallback SVG width control */
-svg#neonText { width:100%; height:auto; display:block; }
-
-/* little decorative underline */
-.underline{
-  width:70%;
-  height:2px;
-  border-radius:999px;
-  margin:12px auto 0;
-  background: linear-gradient(90deg, rgba(0,255,136,0.2), rgba(0,255,255,0.25), rgba(170,255,0,0.18));
-  filter: blur(6px) saturate(160%);
-  opacity:0.9;
-  box-shadow: 0 0 20px rgba(0,255,136,0.06);
-}
-
-/* =====================
-   PARTICLES (DOM-lightweight)
-   ===================== */
-
-.particles{
-  position:absolute;
-  inset:0;
-  z-index:5;
-  pointer-events:none;
-  overflow:visible;
-}
-
-.particles .dot{
-  position:absolute;
-  width:4px; height:4px;
-  border-radius:50%;
-  box-shadow: 0 0 6px rgba(0,255,136,0.6);
-  opacity:0.9;
+/* special green primary button */
+.btn.primary{
+  background: linear-gradient(90deg, #00ff88, #00ffee, #aaff00);
+  color:#001210;
+  font-weight:800;
+  box-shadow: 0 12px 36px rgba(0,255,136,0.14);
   transform: translateZ(0);
-  will-change: transform, opacity;
 }
 
-/* =====================
-   GLASS HUD (subtle decorative corners)
-   ===================== */
-.hud{
-  position:absolute;
-  z-index:30;
-  pointer-events:none;
-  inset:auto;
-  width:100%; height:100%;
+/* small label next to controls */
+.label {
+  font-size:12px; color: rgba(220,255,230,0.7);
+  display:inline-block; padding:6px 10px; border-radius:8px; background: rgba(0,0,0,0.25);
+}
+
+/* toggle switch */
+.switch {
+  width:48px; height:28px; background: rgba(255,255,255,0.06); border-radius:999px; padding:4px; display:inline-block; position:relative; cursor:pointer;
+}
+.switch .knob{
+  width:18px;height:18px;border-radius:50%; background:linear-gradient(180deg,#fff,#dff); position:absolute; left:4px; top:4px; transition:left .18s ease, background .18s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+/* toggle active */
+.switch.on{ background: linear-gradient(90deg,#002b14,#00331a); }
+.switch.on .knob{ left:26px; background: linear-gradient(90deg,#00ff88,#00ffee); }
+
+/* responsive stacking on tiny screens */
+@media (max-width:520px){
+  .controls{ gap:8px; padding:0 6px; bottom:6vh; }
+  .btn{ padding:9px 12px; font-size:13px; border-radius:10px; }
+  .underline{ width:80%; }
+}
+
+/* =============================
+   PARTICLE CANVAS (top-level)
+   ============================= */
+#fxCanvas{
+  position:fixed; inset:0; z-index:5; pointer-events:none;
   display:block;
 }
-.hud .corner{
-  position:absolute;
-  width:24px; height:24px;
-  border:1px solid rgba(255,255,255,0.04);
-  filter: blur(1px);
-}
-.hud .topleft{ left:18px; top:18px; border-right:none; border-bottom:none; }
-.hud .topright{ right:18px; top:18px; border-left:none; border-bottom:none; }
-.hud .bottomleft{ left:18px; bottom:18px; border-right:none; border-top:none; }
-.hud .bottomright{ right:18px; bottom:18px; border-left:none; border-top:none; }
 
-/* =====================
-   RESPONSIVE + ACCESSIBILITY
-   ===================== */
-@media (max-width:680px){
-  :root{ --max-font: clamp(36px, 14vw, 120px); }
-  .blade{ display:block; opacity:0.6; filter:blur(14px); }
-  .blade.micro{ display:none; }
+/* =============================
+   ACCESSIBLE HIDDEN TEXT
+   ============================= */
+.visually-hidden{
+  position:absolute!important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px);
+  white-space:nowrap; border:0; padding:0; margin:-1px;
 }
 
-/* End of CSS header */
+/* END CSS */
 </style>
 
-<!-- Load font early for best text render -->
+<!-- Load a nice techno/cyber font -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 
 </head>
 <body>
-  <main class="stage" role="main" aria-labelledby="main-title">
+  <main class="stage" role="main" aria-labelledby="hb-title">
 
-    <!-- Background volumetric shafts + chromatic aberration -->
+    <!-- Volumetric shafts (decorative) -->
     <div class="volumetric" aria-hidden="true">
-      <div style="position:absolute; left:12%; top:-10%; width:24%; height:120%; background: linear-gradient(180deg, rgba(0,255,136,0.06), rgba(0,0,0,0)); transform: skewX(-12deg); filter: blur(40px) saturate(160%);"></div>
-      <div style="position:absolute; left:45%; top:-12%; width:30%; height:130%; background: linear-gradient(180deg, rgba(0,255,255,0.04), rgba(0,0,0,0)); transform: skewX(-6deg); filter: blur(60px) saturate(180%);"></div>
-      <div style="position:absolute; left:78%; top:-8%; width:20%; height:120%; background: linear-gradient(180deg, rgba(170,255,0,0.03), rgba(0,0,0,0)); transform: skewX(-12deg); filter: blur(36px) saturate(140%);"></div>
+      <div class="shaft" style="left:8%; transform:skewX(-12deg) scaleX(1.1);"></div>
+      <div class="shaft" style="left:40%; background: linear-gradient(180deg, rgba(0,255,200,0.06), rgba(0,0,0,0)); transform:skewX(-6deg) scaleX(1.3);"></div>
+      <div class="shaft" style="left:72%; background: linear-gradient(180deg, rgba(170,255,0,0.04), rgba(0,0,0,0)); transform:skewX(-12deg) scaleX(0.9);"></div>
     </div>
 
+    <!-- Chromatic overlay + grain + vignette -->
+    <div class="chromatic" aria-hidden="true"></div>
     <div class="vignette" aria-hidden="true"></div>
     <div class="grain" aria-hidden="true"></div>
-    <div class="chromatic" aria-hidden="true"></div>
 
-    <!-- Blade sweep layers -->
-    <div class="blade-layer" aria-hidden="true">
-      <div class="blade" style="animation-delay:0s"></div>
-      <div class="blade micro" style="animation-delay:0.4s; opacity:0.95"></div>
-      <div class="blade edge" style="animation-delay:0.9s; opacity:0.55"></div>
-    </div>
+    <!-- moving blade sweeps -->
+    <div class="blade" aria-hidden="true"></div>
+    <div class="blade small" aria-hidden="true"></div>
+    <div class="blade fine" aria-hidden="true"></div>
 
-    <!-- Particles -->
-    <div class="particles" id="particles" aria-hidden="true"></div>
+    <!-- main hero (SVG neon text) -->
+    <div class="hero" role="region" aria-label="Happy Birthday Ahmed display">
+      <h1 id="hb-title" class="visually-hidden">Happy Birthday Ahmed</h1>
 
-    <!-- HUD corners for premium look -->
-    <div class="hud" aria-hidden="true">
-      <div class="corner topleft"></div>
-      <div class="corner topright"></div>
-      <div class="corner bottomleft"></div>
-      <div class="corner bottomright"></div>
-    </div>
-
-    <!-- Hero: giant SVG text -->
-    <section class="hero" role="region" aria-label="Happy Birthday Display">
-      <h2 id="main-title" class="visually-hidden">Happy Birthday Ahmed</h2>
-
-      <!-- SVG approach: mask + animated gradient + multi-stroke for depth -->
-      <div class="svg-wrap" role="img" aria-label="Happy Birthday Ahmed neon text">
-        <svg id="neonText" viewBox="0 0 1400 320" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="false" focusable="false">
+      <div class="svg-wrap" role="img" aria-label="Happy Birthday Ahmed neon">
+        <svg viewBox="0 0 1400 320" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" id="neonSVG">
           <defs>
-            <!-- vibrant green-rainbow gradient that animates -->
-            <linearGradient id="rainbow" x1="0%" x2="100%" y1="0%" y2="0%">
+            <!-- animated green-rainbow gradient -->
+            <linearGradient id="g1" x1="0%" x2="100%" y1="0%" y2="0%">
               <stop offset="0%" stop-color="#00ff88" />
-              <stop offset="18%" stop-color="#00ffee" />
-              <stop offset="40%" stop-color="#aaff00" />
-              <stop offset="62%" stop-color="#7cf7a6" />
-              <stop offset="84%" stop-color="#00ff88" />
-              <animate attributeName="x1" dur="10s" values="0%;100%;0%" repeatCount="indefinite" />
-              <animate attributeName="x2" dur="10s" values="100%;200%;100%" repeatCount="indefinite" />
+              <stop offset="20%" stop-color="#00ffee" />
+              <stop offset="45%" stop-color="#aaff00" />
+              <stop offset="70%" stop-color="#7cf7a6" />
+              <stop offset="100%" stop-color="#00ff88" />
+              <animate attributeName="x1" values="0%;100%;0%" dur="9s" repeatCount="indefinite" />
+              <animate attributeName="x2" values="100%;200%;100%" dur="9s" repeatCount="indefinite" />
             </linearGradient>
 
-            <!-- outer glow filter -->
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="8" result="blur1"/>
-              <feMerge>
-                <feMergeNode in="blur1"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
+            <!-- glow filters -->
+            <filter id="glow1" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="8" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
 
-            <!-- heavier bloom for inner layer -->
-            <filter id="bloom" x="-60%" y="-60%" width="220%" height="220%">
-              <feGaussianBlur stdDeviation="16" result="b1"/>
-              <feColorMatrix in="b1" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
-              <feMerge>
-                <feMergeNode in="b1"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
+            <filter id="glow2" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="18" result="b2"/>
+              <feMerge><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
 
-            <!-- subtle noise texture -->
-            <pattern id="noisePattern" width="4" height="4" patternUnits="userSpaceOnUse">
-              <rect width="4" height="4" fill="rgba(0,0,0,0)"></rect>
-              <circle cx="2" cy="2" r="0.6" fill="rgba(255,255,255,0.02)"></circle>
-            </pattern>
-
-            <!-- Mask so gradient only shows on text fill -->
-            <mask id="textMask">
-              <rect x="0" y="0" width="100%" height="100%" fill="black"/>
-              <text id="bigTextMask" x="50%" y="60%" text-anchor="middle" font-family="Orbitron, Arial" font-weight="900" font-size="120" fill="white" letter-spacing="2">
+            <!-- mask for text -->
+            <mask id="maskText">
+              <rect width="100%" height="100%" fill="black"/>
+              <text id="theText" x="50%" y="60%" text-anchor="middle"
+                    font-family="Orbitron, Arial" font-weight="900" font-size="120" fill="white" letter-spacing="1.5">
                 Happy Birthday Ahmed
               </text>
             </mask>
 
           </defs>
 
-          <!-- Deep stroke for carved look -->
+          <!-- carved deep shadow -->
           <text x="50%" y="60%" text-anchor="middle" font-family="Orbitron, Arial" font-weight="900" font-size="120"
-                style="letter-spacing:2px; fill:none; stroke:rgba(0,0,0,0.85); stroke-width:20; paint-order:stroke fill;">
+                fill="none" stroke="rgba(0,0,0,0.9)" stroke-width="20" paint-order="stroke fill">
             Happy Birthday Ahmed
           </text>
 
-          <!-- Primary gradient fill, masked -->
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#rainbow)" mask="url(#textMask)" filter="url(#bloom)"></rect>
+          <!-- gradient fill through mask -->
+          <rect width="100%" height="100%" fill="url(#g1)" mask="url(#maskText)" filter="url(#glow2)"></rect>
 
-          <!-- inner bright core for extreme neon -->
+          <!-- bright core -->
           <text x="50%" y="60%" text-anchor="middle" font-family="Orbitron, Arial" font-weight="900" font-size="120"
-                fill="url(#rainbow)" style="letter-spacing:2px; filter:url(#glow);">
+                fill="url(#g1)" style="filter:url(#glow1);">
             Happy Birthday Ahmed
           </text>
 
-          <!-- white micro highlights (animated) -->
-          <g style="mix-blend-mode:screen" opacity="0.9">
-            <text x="50%" y="60%" text-anchor="middle" font-family="Orbitron, Arial" font-weight="900" font-size="120"
-                  fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2" style="letter-spacing:2px;">
-              <animate attributeName="stroke-opacity" values="0.02;0.25;0.02" dur="6.2s" repeatCount="indefinite" />
-              Happy Birthday Ahmed
-            </text>
-          </g>
-
-          <!-- Glassy noise overlay -->
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#noisePattern)" opacity="0.5" />
+          <!-- animated micro highlights stroke -->
+          <text x="50%" y="60%" text-anchor="middle" font-family="Orbitron, Arial" font-weight="900" font-size="120"
+                fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2" style="mix-blend-mode:screen;">
+            <animate attributeName="stroke-opacity" values="0.02;0.3;0.02" dur="6s" repeatCount="indefinite" />
+            Happy Birthday Ahmed
+          </text>
 
         </svg>
       </div>
 
-      <!-- small neon underline -->
       <div class="underline" aria-hidden="true"></div>
-    </section>
+    </div>
 
-    <!-- decorative helpers for semantics -->
-    <p class="fallback">Happy Birthday Ahmed</p>
+    <!-- canvas used for high-performance particles and effects -->
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+
+    <!-- controls: particles button, toggle continuous, sound toggle -->
+    <div class="controls" role="region" aria-label="Controls">
+      <button class="btn primary" id="burstBtn" aria-pressed="false" title="Burst particles">✨ Particles</button>
+
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="label">Rain</span>
+        <div class="switch" id="rainSwitch" role="switch" aria-checked="false" tabindex="0">
+          <div class="knob"></div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="label">Sound</span>
+        <div class="switch" id="soundSwitch" role="switch" aria-checked="false" tabindex="0">
+          <div class="knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- accessible fallback if scripts disabled -->
+    <div class="fallback" aria-hidden="true">Happy Birthday Ahmed</div>
 
   </main>
 
 <script>
-/* ============================
-   Advanced Interactive Script
-   - parallax pointer
-   - performant particle engine
-   - adaptive based on prefers-reduced-motion
-   ============================ */
+/* ============================================================
+   Advanced JS: particle engine, continuous rain, pointer trails,
+   WebAudio ambient + click jingle, responsive/respect reduced-motion
+   ============================================================ */
 
 (function () {
+  // preferences
   const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReduced) {
-    // minimize JS effects for accessibility
-    return;
+    // If reduced motion is preferred, simplify: hide animated blades and do not run heavy particles automatically.
+    document.querySelectorAll('.blade').forEach(b => b.style.display = 'none');
   }
 
-  // Utilities
-  const rand = (min, max) => Math.random() * (max - min) + min;
-  const wrap = (v, m) => ((v % m) + m) % m;
+  // Canvas setup
+  const canvas = document.getElementById('fxCanvas');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  let DPR = Math.max(1, window.devicePixelRatio || 1);
 
-  // Stage & elements
-  const stage = document.querySelector('.stage');
-  const particlesEl = document.getElementById('particles') || document.querySelector('.particles');
-  const bladeEls = document.querySelectorAll('.blade');
+  function resize() {
+    DPR = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.floor(window.innerWidth * DPR);
+    canvas.height = Math.floor(window.innerHeight * DPR);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
 
-  // responsive particle count
-  let particleCount = Math.floor(Math.min(200, (window.innerWidth * 0.12)));
-  particleCount = Math.max(60, particleCount);
-
-  // Particle pool for performance
+  // Particle system (object pool)
   const pool = [];
   const active = [];
+  let maxPool = 900; // safety cap
+  let ambientInterval = null;
+  let rainActive = false;
 
-  // Create particle elements and pool them
-  function createParticles(n) {
-    for (let i = 0; i < n; i++) {
-      const el = document.createElement('div');
-      el.className = 'dot';
-      // initial style; will be updated when spawned
-      el.style.opacity = '0';
-      particlesEl.appendChild(el);
-      pool.push({
-        el,
-        vx: 0, vy: 0, life: 0, t: 0, sx:0, sy:0, size:3, hue:0
-      });
+  // utility
+  const rand = (a,b) => Math.random()*(b-a)+a;
+  const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+
+  // Particle class (circle or blade spark)
+  class P {
+    constructor(){
+      this.reset();
+    }
+    reset() {
+      this.x = 0; this.y = 0;
+      this.vx = 0; this.vy = 0;
+      this.size = 3;
+      this.life = 1;
+      this.age = 0;
+      this.h = 140; // hue base (green)
+      this.alpha = 1;
+      this.type = 'dot'; // or 'spark'
+      this.glow = 10;
+      this.rotation = 0;
+      this.spin = 0;
+    }
+    initBurst(cx, cy, power=1) {
+      this.x = cx + rand(-30,30);
+      this.y = cy + rand(-20,20);
+      const angle = rand(0, Math.PI*2);
+      const speed = rand(40, 240) * power;
+      this.vx = Math.cos(angle) * speed;
+      this.vy = Math.sin(angle) * speed * 0.6 - rand(20,120) * (power*0.5);
+      this.size = rand(2, 10);
+      this.life = rand(1.0, 2.6);
+      this.age = 0;
+      this.h = rand(120, 180); // green hues range (120-180)
+      this.alpha = 1;
+      this.type = Math.random() < 0.7 ? 'dot' : 'spark';
+      this.glow = rand(8, 28);
+      this.rotation = rand(0, Math.PI*2);
+      this.spin = rand(-4, 4);
+    }
+    initAmbient(bottomX) {
+      this.x = bottomX;
+      this.y = canvas.height / DPR + rand(0, 40);
+      this.vx = rand(-8, 8);
+      this.vy = rand(-60, -30);
+      this.size = rand(1.2, 4.2);
+      this.life = rand(6, 12);
+      this.age = 0;
+      this.h = rand(125, 170);
+      this.alpha = 0.85;
+      this.type = 'dot';
+      this.glow = rand(6, 18);
+      this.spin = rand(-1, 1);
+    }
+    step(dt) {
+      this.age += dt;
+      if (this.age >= this.life) return false;
+      // integrate
+      this.vy += 240 * dt; // gravity px/s^2
+      this.vx *= (1 - 0.02*dt*60);
+      this.vy *= (1 - 0.002*dt*60);
+      this.x += this.vx * dt;
+      this.y += this.vy * dt;
+      this.rotation += this.spin * dt;
+      // floor bounce
+      const floorY = (canvas.height / DPR) - this.size - 8;
+      if (this.y > floorY) {
+        this.y = floorY;
+        this.vy *= -0.35;
+        this.vx *= 0.7;
+      }
+      // fade in/out
+      const lifeRatio = this.age / this.life;
+      this.alpha = 1 - lifeRatio;
+      return true;
+    }
+    draw(ctx) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = clamp(this.alpha, 0, 1);
+      const color = `hsl(${this.h}deg 90% ${50}%)`;
+      if (this.type === 'dot') {
+        ctx.beginPath();
+        ctx.shadowBlur = this.glow;
+        ctx.shadowColor = color;
+        ctx.fillStyle = color;
+        ctx.arc(this.x, this.y, Math.max(0.6, this.size), 0, Math.PI*2);
+        ctx.fill();
+      } else {
+        // spark: rotated rectangle
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.shadowBlur = this.glow;
+        ctx.shadowColor = color;
+        ctx.fillStyle = color;
+        ctx.fillRect(-this.size*1.2, -this.size/3, this.size*2.4, this.size*0.66);
+      }
+      ctx.restore();
     }
   }
 
-  createParticles(particleCount);
-
-  // Spawn particle with arcade-like physics
-  function spawnParticle(x, y, force = 1.0) {
-    const p = pool.length ? pool.pop() : null;
-    if (!p) return;
-    p.t = 0;
-    p.life = rand(1.2, 3.0);
-    p.sx = x;
-    p.sy = y;
-    p.size = rand(2, 6);
-    p.vx = rand(-80, 80) * force;
-    p.vy = rand(-120, -40) * force;
-    p.hue = rand(120, 160); // green range
-    p.el.style.width = p.size + 'px';
-    p.el.style.height = p.size + 'px';
-    p.el.style.borderRadius = Math.max(1, p.size/2) + 'px';
-    p.el.style.left = x + 'px';
-    p.el.style.top = y + 'px';
-    p.el.style.background = `hsl(${p.hue} ${60}% ${55}%)`;
-    p.el.style.boxShadow = `0 0 ${Math.max(6, p.size*2)}px rgba(0,255,136,0.9)`;
-    p.el.style.opacity = '1';
-    active.push(p);
-  }
-
-  // spawn many around the center for dramatic burst
-  function burstAtCenter(intensity = 1.0, count = Math.max(40, Math.floor(particleCount * 0.6))) {
-    const rect = stage.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    for (let i = 0; i < count; i++) {
-      spawnParticle(cx + rand(-80,80), cy + rand(-30,30), rand(0.6,1.6) * intensity);
+  // pool factory
+  function poolCreate(n) {
+    for (let i=0;i<n;i++){
+      pool.push(new P());
     }
   }
+  poolCreate(300);
 
-  // continuous slow ambient particles rising up
-  function ambientSpawn() {
-    const w = window.innerWidth;
-    const x = rand(0, w);
-    const y = window.innerHeight + 10;
-    const p = pool.length ? pool.pop() : null;
-    if (!p) return;
-    p.t = 0;
-    p.life = rand(6, 12);
-    p.sx = x; p.sy = y;
-    p.size = rand(1.5, 3.5);
-    p.vx = rand(-6,6);
-    p.vy = rand(-40, -15);
-    p.hue = rand(120, 170);
-    p.el.style.width = p.size + 'px';
-    p.el.style.height = p.size + 'px';
-    p.el.style.left = x + 'px';
-    p.el.style.top = y + 'px';
-    p.el.style.background = `hsl(${p.hue} ${60}% ${55}%)`;
-    p.el.style.boxShadow = `0 0 ${Math.max(6, p.size*2)}px rgba(0,255,136,0.6)`;
-    p.el.style.opacity = '0.75';
-    active.push(p);
+  function acquire() {
+    if (pool.length > 0) return pool.pop();
+    if ((active.length + pool.length) < maxPool) {
+      return new P();
+    }
+    return null;
+  }
+  function release(p) {
+    p.reset();
+    pool.push(p);
   }
 
-  // handle resizing: reposition any stuck particles off screen
-  function onResize(){
-    // nothing heavy — particles will naturally update position relative to window
-  }
-  window.addEventListener('resize', onResize);
-
-  // update loop — requestAnimationFrame based
+  // main loop
   let last = performance.now();
-  function tick(now) {
-    const dt = Math.min(0.04, (now - last) / 1000);
+  let running = true;
+  function frame(now) {
+    if (!running) return;
+    const dt = Math.min(0.033, (now - last) / 1000);
     last = now;
+    ctx.clearRect(0,0,canvas.width, canvas.height);
 
-    // update active particles
+    // ambient glow layer (big blurred ellipse)
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 120, canvas.width/2, canvas.height/2, canvas.width/1.2);
+    grad.addColorStop(0, 'rgba(0,255,136,0.06)');
+    grad.addColorStop(0.6, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.restore();
+
+    // update and draw active particles
     for (let i = active.length - 1; i >= 0; i--) {
       const p = active[i];
-      p.t += dt;
-      if (p.t >= p.life) {
-        // return to pool
-        p.el.style.opacity = '0';
-        pool.push(active.splice(i,1)[0]);
-        continue;
+      const alive = p.step(dt);
+      if (!alive) {
+        const rem = active.splice(i,1)[0];
+        release(rem);
+      } else {
+        p.draw(ctx);
       }
-      // integrate physics
-      p.vy += 120 * dt; // gravity
-      p.vx *= (1 - 0.03*dt*60);
-      p.vy *= (1 - 0.003*dt*60);
-      p.sx += p.vx * dt;
-      p.sy += p.vy * dt;
-      // soft floor
-      if (p.sy > window.innerHeight - p.size) {
-        p.sy = window.innerHeight - p.size;
-        p.vy *= -0.35;
-        p.vx *= 0.7;
-      }
-      // fade out near end of life
-      const alpha = 1 - (p.t / p.life);
-      p.el.style.left = (p.sx) + 'px';
-      p.el.style.top = (p.sy) + 'px';
-      p.el.style.opacity = Math.max(0, alpha).toString();
-      // tiny rotation via transform for visual variance
-      p.el.style.transform = `translateZ(0) rotate(${(p.t*360*0.1)%360}deg)`;
     }
 
-    // ambient spawn occasionally
-    if (Math.random() < 0.06) ambientSpawn();
-
-    requestAnimationFrame(tick);
+    requestAnimationFrame(frame);
   }
 
-  // pointer parallax: subtle movement of blades + chromatic layers
-  let pointer = { x: window.innerWidth/2, y: window.innerHeight/2 };
-  function onPointer(e) {
-    const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
-    const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
-    pointer.x = clientX;
-    pointer.y = clientY;
+  requestAnimationFrame(frame);
 
-    // map to small transforms
-    const nx = (clientX / window.innerWidth) - 0.5;
-    const ny = (clientY / window.innerHeight) - 0.5;
-
-    // blades move a bit based on pointer
-    bladeEls.forEach((b, i) => {
-      const depth = (i+1) * 0.6;
-      const left = (nx * 40 * depth);
-      const transY = (ny * 12 * depth);
-      b.style.transform = `translateX(${left}px) translateY(${transY}px) skewX(-18deg)`;
-    });
-
-    // subtle chromatic shift via CSS variables on root (if needed)
-    document.documentElement.style.setProperty('--px', nx.toFixed(3));
-    document.documentElement.style.setProperty('--py', ny.toFixed(3));
+  // spawn burst at center
+  function burst(count=160, power=1.0) {
+    const rect = document.querySelector('.hero').getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    for (let i=0;i<count;i++){
+      const p = acquire();
+      if (!p) break;
+      p.initBurst(cx, cy, power);
+      active.push(p);
+    }
   }
-  window.addEventListener('pointermove', onPointer);
-  window.addEventListener('touchmove', onPointer, {passive:true});
 
-  // keyboard accessibility: Enter to trigger a burst
-  window.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Enter' || ev.key === ' ') {
-      burstAtCenter(1.2, Math.floor(particleCount * 0.9));
+  // ambient rain spawn (continuous)
+  function spawnAmbientOnce() {
+    const x = rand(40, window.innerWidth - 40);
+    const p = acquire();
+    if (!p) return;
+    p.initAmbient(x);
+    active.push(p);
+  }
+
+  // handle continuous rain toggle
+  const rainSwitch = document.getElementById('rainSwitch');
+  function setRain(enabled) {
+    rainActive = !!enabled;
+    rainSwitch.classList.toggle('on', rainActive);
+    rainSwitch.setAttribute('aria-checked', rainActive ? 'true' : 'false');
+    if (rainActive) {
+      // spawn interval
+      ambientInterval = setInterval(() => {
+        // spawn variable number for natural look
+        const n = Math.random() < 0.5 ? 1 : Math.floor(rand(1,3));
+        for (let i=0;i<n;i++) spawnAmbientOnce();
+      }, 220);
+    } else {
+      clearInterval(ambientInterval);
+      ambientInterval = null;
+    }
+  }
+  // click/tap handler on switch element
+  rainSwitch.addEventListener('click', () => setRain(!rainActive));
+  rainSwitch.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setRain(!rainActive); }
+  });
+
+  // burst button
+  const burstBtn = document.getElementById('burstBtn');
+  burstBtn.addEventListener('click', () => {
+    // small camera-shake effect on burst
+    animateScreenShake(8, 350);
+    burst(Math.floor(rand(120, 260)), 1.2);
+    // play jingle click
+    if (audioEngine && audioEngine.enabled) {
+      audioEngine.playClick();
     }
   });
 
-  // initial flourish
-  burstAtCenter(1.0, Math.floor(particleCount * 0.9));
+  // pointer trail: spawn small particles following pointer while pressing
+  let isDown = false;
+  let pointerX = window.innerWidth/2, pointerY = window.innerHeight/2;
+  window.addEventListener('pointerdown', (e) => { isDown = true; pointerX = e.clientX; pointerY = e.clientY; spawnTrail(pointerX, pointerY, 12); });
+  window.addEventListener('pointerup', () => { isDown = false; });
+  window.addEventListener('pointermove', (e) => { pointerX = e.clientX; pointerY = e.clientY; if (isDown) spawnTrail(pointerX, pointerY, 4); });
 
-  // start loop
-  requestAnimationFrame(tick);
+  function spawnTrail(x,y,count=6) {
+    for (let i=0;i<count;i++){
+      const p = acquire();
+      if (!p) break;
+      p.x = x + rand(-12,12);
+      p.y = y + rand(-12,12);
+      p.vx = rand(-40,40);
+      p.vy = rand(-80,-16);
+      p.size = rand(1.4,4.6);
+      p.life = rand(0.6,1.6);
+      p.age = 0;
+      p.h = rand(120, 180);
+      p.alpha = 1;
+      p.glow = rand(6,18);
+      active.push(p);
+    }
+  }
 
-  // expose API (optional)
-  window._neonBlade = {
-    burst: (intensity, count) => burstAtCenter(intensity||1.0, count||Math.floor(particleCount*0.6))
+  // affect blade positions via pointer for parallax
+  const blades = document.querySelectorAll('.blade');
+  window.addEventListener('pointermove', (e) => {
+    const nx = (e.clientX / window.innerWidth) - 0.5;
+    const ny = (e.clientY / window.innerHeight) - 0.5;
+    blades.forEach((b, i) => {
+      const depth = (i+1) * 0.9;
+      b.style.transform = `translateX(${nx * 40 * depth}px) translateY(${ny * 8 * depth}px) skewX(-20deg)`;
+    });
+  });
+
+  // small screen tap: burst on double-tap (friendly)
+  let lastTap = 0;
+  window.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTap < 350) {
+      burst(120, 1.0); // double-tap burst
+    }
+    lastTap = now;
+  });
+
+  // camera shake (subtle)
+  let shakeTimer = null;
+  function animateScreenShake(magnitude=6, duration=300) {
+    const root = document.documentElement;
+    const start = performance.now();
+    if (shakeTimer) cancelAnimationFrame(shakeTimer);
+    function step(now) {
+      const t = (now - start) / duration;
+      if (t >= 1) {
+        root.style.transform = '';
+        return;
+      }
+      const damper = 1 - t;
+      const x = (rand(-1,1) * magnitude * damper).toFixed(2);
+      const y = (rand(-1,1) * magnitude * damper).toFixed(2);
+      root.style.transform = `translate(${x}px, ${y}px)`;
+      shakeTimer = requestAnimationFrame(step);
+    }
+    shakeTimer = requestAnimationFrame(step);
+  }
+
+  // =========================
+  // WebAudio: ambient drone + click jingle
+  // =========================
+  let audioEngine = null;
+  const soundSwitch = document.getElementById('soundSwitch');
+  function setSoundOn(on) {
+    soundSwitch.classList.toggle('on', !!on);
+    soundSwitch.setAttribute('aria-checked', !!on ? 'true' : 'false');
+    if (on) {
+      if (!audioEngine) {
+        audioEngine = createAudioEngine();
+        audioEngine.start();
+      } else {
+        audioEngine.enable();
+      }
+    } else {
+      if (audioEngine) audioEngine.disable();
+    }
+  }
+  soundSwitch.addEventListener('click', () => {
+    const isOn = soundSwitch.classList.contains('on');
+    setSoundOn(!isOn);
+  });
+  soundSwitch.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSoundOn(!soundSwitch.classList.contains('on')); }
+  });
+
+  // Create a small WebAudio engine that produces ambient pad and a light click
+  function createAudioEngine() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return null;
+    const ctx = new AudioContext();
+    const master = ctx.createGain(); master.gain.value = 0.12; master.connect(ctx.destination);
+    const engine = {
+      ctx, master, enabled: true,
+      start() {
+        // create a soft layered pad using detuned oscillators + subtle LFO
+        // pad: two oscillators with lowpass and reverb-like delay
+        const o1 = ctx.createOscillator();
+        o1.type = 'sine'; o1.frequency.value = 110; // A2 base
+        const o2 = ctx.createOscillator();
+        o2.type = 'sine'; o2.frequency.value = 110 * 1.005; // slight detune
+
+        // amplitude envelope
+        const g = ctx.createGain(); g.gain.value = 0.0;
+        o1.connect(g); o2.connect(g);
+
+        // lowpass for mellow tone
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 800;
+        g.connect(lp);
+
+        // delay for spaciousness
+        const d = ctx.createDelay(); d.delayTime.value = 0.8;
+        const fb = ctx.createGain(); fb.gain.value = 0.22;
+        lp.connect(d); d.connect(fb); fb.connect(d);
+
+        // connect both to master
+        lp.connect(master);
+        d.connect(master);
+
+        // LFO to modulate filter cutoff
+        const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.06;
+        const lfoGain = ctx.createGain(); lfoGain.gain.value = 200;
+        lfo.connect(lfoGain);
+        lfoGain.connect(lp.frequency);
+
+        // start
+        o1.start(); o2.start(); lfo.start();
+
+        // slow fade in
+        const now = ctx.currentTime;
+        g.gain.cancelScheduledValues(now);
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(0.9, now + 3.0);
+
+        engine.pad = { o1, o2, g, lfo, lp, d, fb };
+      },
+      enable() {
+        if (ctx.state === 'suspended') ctx.resume();
+        this.enabled = true;
+        master.gain.value = 0.12;
+      },
+      disable() {
+        // smooth fade
+        master.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+        this.enabled = false;
+      },
+      playClick() {
+        if (!this.enabled) return;
+        const s = ctx.createOscillator();
+        s.type = 'triangle';
+        s.frequency.value = 880;
+        const g2 = ctx.createGain();
+        g2.gain.value = 0;
+        s.connect(g2); g2.connect(master);
+        const now = ctx.currentTime;
+        g2.gain.setValueAtTime(0.0, now);
+        g2.gain.linearRampToValueAtTime(0.18, now + 0.002);
+        g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+        s.frequency.setValueAtTime(880, now);
+        s.frequency.exponentialRampToValueAtTime(660, now + 0.22);
+        s.start(now);
+        s.stop(now + 0.26);
+      }
+    };
+    return engine;
+  }
+
+  // For user-gesture audio permission on some browsers, start audio when user toggles sound or interacts
+  // We will attach a minimal start on first click to unlock audio context
+  let audioUnlocked = false;
+  const unlockAudioIfNeeded = async () => {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    if (!audioEngine) {
+      audioEngine = createAudioEngine();
+      if (audioEngine) audioEngine.start();
+    } else {
+      audioEngine.enable();
+    }
+  };
+
+  // On first user gesture, optionally start audio if toggled on
+  window.addEventListener('pointerdown', () => { if (soundSwitch.classList.contains('on')) unlockAudioIfNeeded(); }, { once: false });
+
+  // Set initial world state
+  setRain(false);
+  setSoundOn(false);
+
+  // Expose small API for console
+  window._neon = {
+    burst, setRain, spawnTrail, setSoundOn, activeParticles: active.length
   };
 
 })(); // end IIFE
 </script>
 
-<!-- Optional noscript fallback -->
-<noscript>
-  <style>
-    .fallback{ display:block; font-size:48px; text-align:center; color:var(--neon-1); text-shadow:0 0 10px rgba(0,255,136,0.2); }
-    .particles, .blade, .volumetric, .chromatic, .grain { display:none !important; }
-  </style>
-  <div style="position:fixed; inset:0; display:grid; place-items:center; background:black; z-index:9999;">
-    <div>
-      <div class="fallback">Happy Birthday Ahmed</div>
-    </div>
-  </div>
-</noscript>
-
 </body>
-</html>
+       </html>
