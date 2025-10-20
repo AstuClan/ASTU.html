@@ -3,377 +3,638 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Happy birthday Ahmed — super advanced</title>
+<title>Happy Birthday Ahmed — Neon Blade</title>
+<meta name="description" content="A neon green rainbow blade-style Happy Birthday for Ahmed — advanced single-file experience." />
 <style>
-  :root{
-    --bg1: #0f172a;
-    --bg2: #071129;
-    --glass: rgba(255,255,255,0.06);
-    --accent-a: #ff6b6b;
-    --accent-b: #ffd86b;
-    --accent-c: #7afcff;
-    --max-font: clamp(48px, 12vw, 160px);
-    --shadow: 0 10px 40px rgba(2,6,23,0.7);
-    --reduced: no-preference;
-  }
+/* =====================
+   THEME + RESET
+   ===================== */
+:root{
+  --bg-0: #000000;
+  --bg-1: #020204;
+  --neon-1: #00ff88;
+  --neon-2: #00ffee;
+  --neon-3: #aaff00;
+  --neon-4: #7cf7a6;
+  --glass: rgba(255,255,255,0.02);
+  --max-font: clamp(48px, 10vw, 170px);
+  --line-height: 0.86;
+  --particle-count: 120;
+  --pref-reduced: no-preference;
+}
 
-  /* Respect prefers-reduced-motion */
-  @media (prefers-reduced-motion: reduce) {
-    :root { --reduced: reduce; }
-  }
+/* Respect user reduced motion preference */
+@media (prefers-reduced-motion: reduce){
+  :root{ --pref-reduced: reduce; }
+}
 
-  html,body{
-    height:100%;
-    margin:0;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: radial-gradient(1200px 600px at 10% 10%, rgba(255,107,107,0.06), transparent 8%),
-                radial-gradient(900px 400px at 90% 90%, rgba(122,252,255,0.03), transparent 10%),
-                linear-gradient(180deg,var(--bg1), var(--bg2));
-    color: white;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background: linear-gradient(180deg,var(--bg-0) 0%, #030303 60%);
+  color: #dfffe6;
+  font-family: "Orbitron", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
-  /* Layout: perfect centered stack */
-  .stage{
-    min-height:100%;
-    display:grid;
-    place-items:center;
-    gap:24px;
-    padding:4vmin;
-    position:relative;
-    overflow:hidden;
-  }
+/* Container centers everything and holds layers */
+.stage{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  display:grid;
+  place-items:center;
+  isolation:isolate;
+  user-select:none;
+}
 
-  /* Subtle glass panel for contrast */
-  .card{
-    width:100%;
-    max-width:1200px;
-    padding:3vmin;
-    border-radius:28px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(255,255,255,0.04);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
+/* Background volumetric shafts (subtle) */
+.volumetric{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:0;
+  mix-blend-mode:screen;
+}
 
-  /* Big centered text container */
-  .headline{
-    text-align:center;
-    position:relative;
-    line-height:0.9;
-    user-select:none;
-  }
+/* soft radial vignette */
+.vignette {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(60% 40% at 50% 40%, rgba(10,255,150,0.05), transparent 25%),
+    radial-gradient(80% 60% at 50% 80%, rgba(0,0,0,0.6), rgba(0,0,0,0.85));
+  z-index:2;
+  pointer-events:none;
+}
 
-  /* Make text responsive huge */
-  .headline svg{
-    width:100%;
-    height:auto;
-    display:block;
-    margin:0 auto;
-    max-height: min(60vh, 520px);
-  }
+/* Grain overlay to add texture */
+.grain{
+  position:absolute; inset:0; z-index:2000; pointer-events:none;
+  background-image: radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size:3px 3px;
+  opacity:0.45;
+  mix-blend-mode:overlay;
+  transform: translateZ(0);
+  will-change:opacity;
+}
 
-  /* Subtle floating */
-  @media (prefers-reduced-motion: no-preference){
-    .card{ animation: float 8s ease-in-out infinite; }
-    @keyframes float{
-      0%{ transform: translateY(0) }
-      50%{ transform: translateY(-10px) }
-      100%{ transform: translateY(0) }
-    }
-  }
+/* Main visual wrapper for text and effects */
+.hero{
+  position:relative;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:12px;
+  text-align:center;
+  padding:4vmin;
+  width:min(1200px, 94vw);
+}
 
-  /* CTA button to trigger confetti */
-  .controls{
-    display:flex;
-    gap:12px;
-    justify-content:center;
-    margin-top:1.2rem;
-  }
-  .btn{
-    background:linear-gradient(90deg,var(--accent-a),var(--accent-b));
-    color:#081022;
-    padding:.8rem 1.2rem;
-    border-radius:12px;
-    border:none;
-    font-weight:700;
-    cursor:pointer;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    transform: translateZ(0);
-  }
-  .btn:active{ transform: translateY(1px) }
+/* SVG container to ensure crisp text at any size */
+.svg-wrap{
+  width:100%;
+  max-width:1100px;
+  display:block;
+}
 
-  /* Footer small help text */
-  .help{
-    color: rgba(255,255,255,0.6);
-    font-size:0.9rem;
-    margin-top:.6rem;
-    text-align:center;
-  }
+/* ARIA-visible heading just for assistive tech (hidden visually) */
+.visually-hidden{
+  position:absolute!important;
+  height:1px; width:1px;
+  overflow:hidden; clip:rect(1px,1px,1px,1px);
+  white-space:nowrap; border:0; padding:0; margin:-1px;
+}
 
-  /* Canvas for confetti sits absolutely on top */
-  #confetti{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    z-index:1200;
-  }
+/* =====================
+   TYPOGRAPHY - SVG TEXT STYLES
+   ===================== */
 
-  /* Accessibility: focus outlines */
-  .btn:focus{ outline: 3px solid rgba(255,255,255,0.12); outline-offset:3px; }
+/* fallback simple heading for extremely old browsers */
+.fallback{
+  display:none;
+  font-weight:800;
+  font-size:var(--max-font);
+  color:var(--neon-1);
+  text-shadow:
+    0 0 6px rgba(0,255,136,0.12),
+    0 0 30px rgba(0,255,136,0.06);
+  transform:translateZ(0);
+  mix-blend-mode:screen;
+}
 
-  /* Small screens: shrink padding */
-  @media (max-width:520px){
-    .card{ padding:2vmin; border-radius:18px; }
-  }
+/* =====================
+   BLADE SWEEP + GLINTS
+   ===================== */
+.blade-layer{
+  position:absolute; inset:0; z-index:10; pointer-events:none;
+}
+
+/* thin razor lines layered for depth */
+.blade{
+  position:absolute;
+  top:10%;
+  left:-40%;
+  height:80%;
+  width:40%;
+  transform:skewX(-18deg);
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(180,255,214,0.06) 20%,
+    rgba(255,255,255,0.5) 40%,
+    rgba(180,255,214,0.06) 60%,
+    rgba(255,255,255,0) 100%
+  );
+  filter: blur(20px) saturate(160%);
+  opacity:0.95;
+  mix-blend-mode:screen;
+  will-change:left, transform;
+  animation: bladeSweep 3s linear infinite;
+}
+
+/* slightly faster micro blades for razor effect */
+.blade.micro{
+  width:20%;
+  height:85%;
+  top:5%;
+  left:-50%;
+  filter: blur(6px) contrast(140%) brightness(160%);
+  animation-duration:2.1s;
+  opacity:0.85;
+}
+
+/* subtle reflective outline */
+.blade.edge{
+  width:10%;
+  height:95%;
+  filter: blur(2px) brightness(220%);
+  animation-duration:4s;
+  opacity:0.6;
+}
+
+/* blade animation */
+@keyframes bladeSweep{
+  0%{ left:-60%; transform:skewX(-15deg) translateY(0); opacity:0.0; }
+  10%{ opacity:0.8; }
+  50%{ left:120%; transform:skewX(-18deg) translateY(-4%); opacity:0.95; }
+  100%{ left:160%; opacity:0; transform:skewX(-12deg) translateY(2%); }
+}
+
+/* reduce animations for prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce){
+  .blade{ animation: none; left: 20%; opacity:0.6; }
+  .blade.micro{ animation:none; left: 40%; }
+}
+
+/* =====================
+   NEON STROBE + CHROMATIC ABERRATION
+   ===================== */
+
+.chromatic{
+  position:absolute; inset:0; z-index:15; pointer-events:none; mix-blend-mode:screen;
+  background: radial-gradient(1000px 300px at 50% 40%, rgba(0,255,136,0.08), transparent 20%);
+  filter: blur(40px) saturate(200%);
+}
+
+/* fake chromatic layers for subtle RGB split */
+.chromatic::before,
+.chromatic::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(90deg, rgba(0,255,136,0.02), rgba(0,255,255,0.02), rgba(170,255,0,0.02));
+  mix-blend-mode:screen;
+  pointer-events:none;
+}
+.chromatic::before{ transform:translateX(-6px) scale(1.02); filter:blur(18px); opacity:0.85; }
+.chromatic::after{ transform:translateX(6px) scale(1.02); filter:blur(28px); opacity:0.7; }
+
+/* =====================
+   NEON TEXT SHIMMER (SVG uses gradient animation)
+   ===================== */
+
+/* fallback SVG width control */
+svg#neonText { width:100%; height:auto; display:block; }
+
+/* little decorative underline */
+.underline{
+  width:70%;
+  height:2px;
+  border-radius:999px;
+  margin:12px auto 0;
+  background: linear-gradient(90deg, rgba(0,255,136,0.2), rgba(0,255,255,0.25), rgba(170,255,0,0.18));
+  filter: blur(6px) saturate(160%);
+  opacity:0.9;
+  box-shadow: 0 0 20px rgba(0,255,136,0.06);
+}
+
+/* =====================
+   PARTICLES (DOM-lightweight)
+   ===================== */
+
+.particles{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  pointer-events:none;
+  overflow:visible;
+}
+
+.particles .dot{
+  position:absolute;
+  width:4px; height:4px;
+  border-radius:50%;
+  box-shadow: 0 0 6px rgba(0,255,136,0.6);
+  opacity:0.9;
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* =====================
+   GLASS HUD (subtle decorative corners)
+   ===================== */
+.hud{
+  position:absolute;
+  z-index:30;
+  pointer-events:none;
+  inset:auto;
+  width:100%; height:100%;
+  display:block;
+}
+.hud .corner{
+  position:absolute;
+  width:24px; height:24px;
+  border:1px solid rgba(255,255,255,0.04);
+  filter: blur(1px);
+}
+.hud .topleft{ left:18px; top:18px; border-right:none; border-bottom:none; }
+.hud .topright{ right:18px; top:18px; border-left:none; border-bottom:none; }
+.hud .bottomleft{ left:18px; bottom:18px; border-right:none; border-top:none; }
+.hud .bottomright{ right:18px; bottom:18px; border-left:none; border-top:none; }
+
+/* =====================
+   RESPONSIVE + ACCESSIBILITY
+   ===================== */
+@media (max-width:680px){
+  :root{ --max-font: clamp(36px, 14vw, 120px); }
+  .blade{ display:block; opacity:0.6; filter:blur(14px); }
+  .blade.micro{ display:none; }
+}
+
+/* End of CSS header */
 </style>
+
+<!-- Load font early for best text render -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
 </head>
 <body>
-  <canvas id="confetti" aria-hidden="true"></canvas>
+  <main class="stage" role="main" aria-labelledby="main-title">
 
-  <main class="stage" role="main" aria-labelledby="hb-heading">
-    <section class="card" aria-hidden="false">
-      <div class="headline" role="img" aria-label="Happy birthday Ahmed">
-        <!-- SVG text with animated gradient mask + filter for glow -->
-        <svg viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid meet" role="presentation" aria-hidden="true">
+    <!-- Background volumetric shafts + chromatic aberration -->
+    <div class="volumetric" aria-hidden="true">
+      <div style="position:absolute; left:12%; top:-10%; width:24%; height:120%; background: linear-gradient(180deg, rgba(0,255,136,0.06), rgba(0,0,0,0)); transform: skewX(-12deg); filter: blur(40px) saturate(160%);"></div>
+      <div style="position:absolute; left:45%; top:-12%; width:30%; height:130%; background: linear-gradient(180deg, rgba(0,255,255,0.04), rgba(0,0,0,0)); transform: skewX(-6deg); filter: blur(60px) saturate(180%);"></div>
+      <div style="position:absolute; left:78%; top:-8%; width:20%; height:120%; background: linear-gradient(180deg, rgba(170,255,0,0.03), rgba(0,0,0,0)); transform: skewX(-12deg); filter: blur(36px) saturate(140%);"></div>
+    </div>
+
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="chromatic" aria-hidden="true"></div>
+
+    <!-- Blade sweep layers -->
+    <div class="blade-layer" aria-hidden="true">
+      <div class="blade" style="animation-delay:0s"></div>
+      <div class="blade micro" style="animation-delay:0.4s; opacity:0.95"></div>
+      <div class="blade edge" style="animation-delay:0.9s; opacity:0.55"></div>
+    </div>
+
+    <!-- Particles -->
+    <div class="particles" id="particles" aria-hidden="true"></div>
+
+    <!-- HUD corners for premium look -->
+    <div class="hud" aria-hidden="true">
+      <div class="corner topleft"></div>
+      <div class="corner topright"></div>
+      <div class="corner bottomleft"></div>
+      <div class="corner bottomright"></div>
+    </div>
+
+    <!-- Hero: giant SVG text -->
+    <section class="hero" role="region" aria-label="Happy Birthday Display">
+      <h2 id="main-title" class="visually-hidden">Happy Birthday Ahmed</h2>
+
+      <!-- SVG approach: mask + animated gradient + multi-stroke for depth -->
+      <div class="svg-wrap" role="img" aria-label="Happy Birthday Ahmed neon text">
+        <svg id="neonText" viewBox="0 0 1400 320" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="false" focusable="false">
           <defs>
-            <!-- Animated linear gradient -->
-            <linearGradient id="g1" x1="0%" x2="100%" y1="0%" y2="0%">
-              <stop offset="0%" stop-color="#ff6b6b"/>
-              <stop offset="40%" stop-color="#ffd86b"/>
-              <stop offset="70%" stop-color="#7afcff"/>
-              <stop offset="100%" stop-color="#b57bff"/>
-              <!-- animateGradient position -->
-              <animate attributeName="x1" values="0%;100%;0%" dur="8s" repeatCount="indefinite" />
-              <animate attributeName="x2" values="100%;200%;100%" dur="8s" repeatCount="indefinite" />
+            <!-- vibrant green-rainbow gradient that animates -->
+            <linearGradient id="rainbow" x1="0%" x2="100%" y1="0%" y2="0%">
+              <stop offset="0%" stop-color="#00ff88" />
+              <stop offset="18%" stop-color="#00ffee" />
+              <stop offset="40%" stop-color="#aaff00" />
+              <stop offset="62%" stop-color="#7cf7a6" />
+              <stop offset="84%" stop-color="#00ff88" />
+              <animate attributeName="x1" dur="10s" values="0%;100%;0%" repeatCount="indefinite" />
+              <animate attributeName="x2" dur="10s" values="100%;200%;100%" repeatCount="indefinite" />
             </linearGradient>
 
-            <!-- Soft blur for glow -->
+            <!-- outer glow filter -->
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="8" result="blur"/>
+              <feGaussianBlur stdDeviation="8" result="blur1"/>
               <feMerge>
-                <feMergeNode in="blur"/>
+                <feMergeNode in="blur1"/>
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
 
-            <!-- A textured noise pattern for subtle grain -->
-            <pattern id="grain" patternUnits="userSpaceOnUse" width="8" height="8">
-              <rect width="8" height="8" fill="rgba(255,255,255,0.01)"></rect>
-              <circle cx="4" cy="4" r="0.7" fill="rgba(255,255,255,0.02)"></circle>
+            <!-- heavier bloom for inner layer -->
+            <filter id="bloom" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="16" result="b1"/>
+              <feColorMatrix in="b1" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+              <feMerge>
+                <feMergeNode in="b1"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+
+            <!-- subtle noise texture -->
+            <pattern id="noisePattern" width="4" height="4" patternUnits="userSpaceOnUse">
+              <rect width="4" height="4" fill="rgba(0,0,0,0)"></rect>
+              <circle cx="2" cy="2" r="0.6" fill="rgba(255,255,255,0.02)"></circle>
             </pattern>
 
-            <!-- Mask to reveal gradient only on text fill -->
-            <mask id="m1">
-              <rect width="100%" height="100%" fill="black"/>
-              <text id="hb" x="50%" y="60%" text-anchor="middle" font-family="Inter, Roboto, Arial" font-weight="800" font-size="160" fill="white"
-                    style="letter-spacing:3px;">
-                Happy birthday Ahmed
+            <!-- Mask so gradient only shows on text fill -->
+            <mask id="textMask">
+              <rect x="0" y="0" width="100%" height="100%" fill="black"/>
+              <text id="bigTextMask" x="50%" y="60%" text-anchor="middle" font-family="Orbitron, Arial" font-weight="900" font-size="120" fill="white" letter-spacing="2">
+                Happy Birthday Ahmed
               </text>
             </mask>
+
           </defs>
 
-          <!-- Background stroke for depth -->
-          <text x="50%" y="60%" text-anchor="middle" font-family="Inter, Roboto, Arial" font-weight="900" font-size="160"
-                style="letter-spacing:3px; fill:none; stroke: rgba(0,0,0,0.55); stroke-width:16; paint-order:stroke fill;"
-                transform="translate(0,4)">
-            Happy birthday Ahmed
+          <!-- Deep stroke for carved look -->
+          <text x="50%" y="60%" text-anchor="middle" font-family="Orbitron, Arial" font-weight="900" font-size="120"
+                style="letter-spacing:2px; fill:none; stroke:rgba(0,0,0,0.85); stroke-width:20; paint-order:stroke fill;">
+            Happy Birthday Ahmed
           </text>
 
-          <!-- Primary animated gradient fill, masked to text -->
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#g1)" mask="url(#m1)" filter="url(#glow)"></rect>
+          <!-- Primary gradient fill, masked -->
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#rainbow)" mask="url(#textMask)" filter="url(#bloom)"></rect>
 
-          <!-- Subtle noise overlay -->
-          <rect width="100%" height="100%" fill="url(#grain)" opacity="0.6"></rect>
-
-          <!-- Thin animated outline stroke (SVG animateMotion trick) -->
-          <text x="50%" y="60%" text-anchor="middle" font-family="Inter, Roboto, Arial" font-weight="800" font-size="160"
-                style="letter-spacing:3px; fill:none; stroke:rgba(255,255,255,0.12); stroke-width:2; mix-blend-mode:overlay;">
-            <animate attributeName="stroke-opacity" values="0.06;0.3;0.06" dur="6s" repeatCount="indefinite" />
-            Happy birthday Ahmed
+          <!-- inner bright core for extreme neon -->
+          <text x="50%" y="60%" text-anchor="middle" font-family="Orbitron, Arial" font-weight="900" font-size="120"
+                fill="url(#rainbow)" style="letter-spacing:2px; filter:url(#glow);">
+            Happy Birthday Ahmed
           </text>
+
+          <!-- white micro highlights (animated) -->
+          <g style="mix-blend-mode:screen" opacity="0.9">
+            <text x="50%" y="60%" text-anchor="middle" font-family="Orbitron, Arial" font-weight="900" font-size="120"
+                  fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2" style="letter-spacing:2px;">
+              <animate attributeName="stroke-opacity" values="0.02;0.25;0.02" dur="6.2s" repeatCount="indefinite" />
+              Happy Birthday Ahmed
+            </text>
+          </g>
+
+          <!-- Glassy noise overlay -->
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#noisePattern)" opacity="0.5" />
+
         </svg>
       </div>
+
+      <!-- small neon underline -->
+      <div class="underline" aria-hidden="true"></div>
     </section>
 
-    <div class="controls" aria-hidden="false">
-      <button id="sprinkle" class="btn" type="button" title="🎉 Sprinkle confetti">Sprinkle confetti 🎉</button>
-      <button id="big" class="btn" type="button" title="More confetti">Make it rain ✨</button>
-    </div>
+    <!-- decorative helpers for semantics -->
+    <p class="fallback">Happy Birthday Ahmed</p>
 
-    <div class="help" id="hb-heading">
-      Click the buttons (or press <kbd>Enter</kbd>) to trigger a confetti burst. Works with keyboard for accessibility.
-    </div>
   </main>
 
 <script>
-/*
-  Confetti particle system:
-  - Uses a single canvas covering the viewport.
-  - Lightweight physics with per-particle lifetime and gravity.
-  - Automatically reduces particles on small viewports or when tab is hidden.
-  - Honors prefers-reduced-motion by disabling auto animations.
-*/
+/* ============================
+   Advanced Interactive Script
+   - parallax pointer
+   - performant particle engine
+   - adaptive based on prefers-reduced-motion
+   ============================ */
 
-(() => {
+(function () {
   const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const canvas = document.getElementById('confetti');
-  const ctx = canvas.getContext('2d', { alpha: true });
-  let particles = [];
-  let running = true;
-  let lastTime = performance.now();
-  let dpr = Math.max(1, window.devicePixelRatio || 1);
-
-  function resize() {
-    dpr = Math.max(1, window.devicePixelRatio || 1);
-    canvas.width = Math.floor(window.innerWidth * dpr);
-    canvas.height = Math.floor(window.innerHeight * dpr);
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
+  if (prefersReduced) {
+    // minimize JS effects for accessibility
+    return;
   }
-  window.addEventListener('resize', resize, { passive:true });
-  resize();
 
-  // Simple random helpers
+  // Utilities
   const rand = (min, max) => Math.random() * (max - min) + min;
-  const choose = (arr) => arr[Math.floor(Math.random()*arr.length)];
+  const wrap = (v, m) => ((v % m) + m) % m;
 
-  // Colors tuned to the gradient
-  const colors = ['#ff6b6b','#ffd86b','#7afcff','#b57bff','#8aff9a'];
+  // Stage & elements
+  const stage = document.querySelector('.stage');
+  const particlesEl = document.getElementById('particles') || document.querySelector('.particles');
+  const bladeEls = document.querySelectorAll('.blade');
 
-  // Particle constructor
-  function spawn(x, y, count=80, force=1){
-    const limit = Math.min(600, count);
-    for(let i=0;i<limit;i++){
-      const angle = rand(0, Math.PI*2);
-      const speed = rand(2,18) * force;
-      particles.push({
-        x, y,
-        vx: Math.cos(angle)*speed + rand(-2,2),
-        vy: Math.sin(angle)*speed * 0.6 - rand(2,7),
-        size: rand(4,14),
-        life: rand(1.2, 3.0),
-        t: 0,
-        rot: rand(0,Math.PI*2),
-        vr: rand(-0.2,0.2),
-        color: choose(colors),
-        shape: Math.random() < 0.5 ? 'rect' : 'circle',
-        drift: rand(-0.02, 0.02),
+  // responsive particle count
+  let particleCount = Math.floor(Math.min(200, (window.innerWidth * 0.12)));
+  particleCount = Math.max(60, particleCount);
+
+  // Particle pool for performance
+  const pool = [];
+  const active = [];
+
+  // Create particle elements and pool them
+  function createParticles(n) {
+    for (let i = 0; i < n; i++) {
+      const el = document.createElement('div');
+      el.className = 'dot';
+      // initial style; will be updated when spawned
+      el.style.opacity = '0';
+      particlesEl.appendChild(el);
+      pool.push({
+        el,
+        vx: 0, vy: 0, life: 0, t: 0, sx:0, sy:0, size:3, hue:0
       });
     }
   }
 
-  // Control UI
-  const sprinkle = document.getElementById('sprinkle');
-  const big = document.getElementById('big');
+  createParticles(particleCount);
 
-  sprinkle.addEventListener('click', (e) => {
-    const rect = document.querySelector('.card').getBoundingClientRect();
-    spawn(rect.left + rect.width/2, rect.top + rect.height/2, 120, 0.9);
-  });
+  // Spawn particle with arcade-like physics
+  function spawnParticle(x, y, force = 1.0) {
+    const p = pool.length ? pool.pop() : null;
+    if (!p) return;
+    p.t = 0;
+    p.life = rand(1.2, 3.0);
+    p.sx = x;
+    p.sy = y;
+    p.size = rand(2, 6);
+    p.vx = rand(-80, 80) * force;
+    p.vy = rand(-120, -40) * force;
+    p.hue = rand(120, 160); // green range
+    p.el.style.width = p.size + 'px';
+    p.el.style.height = p.size + 'px';
+    p.el.style.borderRadius = Math.max(1, p.size/2) + 'px';
+    p.el.style.left = x + 'px';
+    p.el.style.top = y + 'px';
+    p.el.style.background = `hsl(${p.hue} ${60}% ${55}%)`;
+    p.el.style.boxShadow = `0 0 ${Math.max(6, p.size*2)}px rgba(0,255,136,0.9)`;
+    p.el.style.opacity = '1';
+    active.push(p);
+  }
 
-  big.addEventListener('click', (e) => {
-    const rect = document.querySelector('.card').getBoundingClientRect();
-    spawn(rand(0, window.innerWidth), rand(0, window.innerHeight/2), 350, 1.6);
-  });
-
-  // Keyboard accessibility: Enter triggers sprinkle
-  document.addEventListener('keydown', ev => {
-    if(ev.key === 'Enter' || ev.key === ' ') {
-      ev.preventDefault();
-      sprinkle.click();
+  // spawn many around the center for dramatic burst
+  function burstAtCenter(intensity = 1.0, count = Math.max(40, Math.floor(particleCount * 0.6))) {
+    const rect = stage.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    for (let i = 0; i < count; i++) {
+      spawnParticle(cx + rand(-80,80), cy + rand(-30,30), rand(0.6,1.6) * intensity);
     }
-  });
+  }
 
-  // Pause when tab hidden
-  const onVisibility = () => {
-    running = !document.hidden;
-    if(running) lastTime = performance.now();
-  };
-  document.addEventListener('visibilitychange', onVisibility);
+  // continuous slow ambient particles rising up
+  function ambientSpawn() {
+    const w = window.innerWidth;
+    const x = rand(0, w);
+    const y = window.innerHeight + 10;
+    const p = pool.length ? pool.pop() : null;
+    if (!p) return;
+    p.t = 0;
+    p.life = rand(6, 12);
+    p.sx = x; p.sy = y;
+    p.size = rand(1.5, 3.5);
+    p.vx = rand(-6,6);
+    p.vy = rand(-40, -15);
+    p.hue = rand(120, 170);
+    p.el.style.width = p.size + 'px';
+    p.el.style.height = p.size + 'px';
+    p.el.style.left = x + 'px';
+    p.el.style.top = y + 'px';
+    p.el.style.background = `hsl(${p.hue} ${60}% ${55}%)`;
+    p.el.style.boxShadow = `0 0 ${Math.max(6, p.size*2)}px rgba(0,255,136,0.6)`;
+    p.el.style.opacity = '0.75';
+    active.push(p);
+  }
 
-  // Animation loop
-  function step(now){
-    const dt = Math.min(0.033, (now - lastTime) / 1000); // cap dt
-    lastTime = now;
-    if(!running){
-      requestAnimationFrame(step);
-      return;
-    }
+  // handle resizing: reposition any stuck particles off screen
+  function onResize(){
+    // nothing heavy — particles will naturally update position relative to window
+  }
+  window.addEventListener('resize', onResize);
 
-    // Clear with slight fade for motion trail
-    ctx.clearRect(0,0,canvas.width, canvas.height);
+  // update loop — requestAnimationFrame based
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min(0.04, (now - last) / 1000);
+    last = now;
 
-    // Update particles
-    for(let i = particles.length - 1; i >= 0; i--){
-      const p = particles[i];
+    // update active particles
+    for (let i = active.length - 1; i >= 0; i--) {
+      const p = active[i];
       p.t += dt;
-      if(p.t > p.life){
-        particles.splice(i,1);
+      if (p.t >= p.life) {
+        // return to pool
+        p.el.style.opacity = '0';
+        pool.push(active.splice(i,1)[0]);
         continue;
       }
-      // Physics: gravity + drag + drift
-      p.vy += 30 * dt; // gravity
-      p.vx *= (1 - 0.01*dt*60); // drag
-      p.vy *= (1 - 0.002*dt*60);
-      p.vx += p.drift * dt * 60;
-      p.x += p.vx * dt * 60;
-      p.y += p.vy * dt * 60;
-      p.rot += p.vr;
-
-      // Bounce off bottom softly
-      if(p.y > window.innerHeight - p.size){
-        p.y = window.innerHeight - p.size;
-        p.vy *= -0.45;
-        p.vx *= 0.85;
+      // integrate physics
+      p.vy += 120 * dt; // gravity
+      p.vx *= (1 - 0.03*dt*60);
+      p.vy *= (1 - 0.003*dt*60);
+      p.sx += p.vx * dt;
+      p.sy += p.vy * dt;
+      // soft floor
+      if (p.sy > window.innerHeight - p.size) {
+        p.sy = window.innerHeight - p.size;
+        p.vy *= -0.35;
+        p.vx *= 0.7;
       }
-
+      // fade out near end of life
       const alpha = 1 - (p.t / p.life);
-      ctx.globalAlpha = alpha;
-
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      if(p.shape === 'rect'){
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
-      } else {
-        ctx.beginPath();
-        ctx.fillStyle = p.color;
-        ctx.arc(0,0,p.size/2,0,Math.PI*2);
-        ctx.fill();
-      }
-      ctx.restore();
+      p.el.style.left = (p.sx) + 'px';
+      p.el.style.top = (p.sy) + 'px';
+      p.el.style.opacity = Math.max(0, alpha).toString();
+      // tiny rotation via transform for visual variance
+      p.el.style.transform = `translateZ(0) rotate(${(p.t*360*0.1)%360}deg)`;
     }
-    ctx.globalAlpha = 1;
 
-    // Limit particle count for performance
-    if(particles.length > 700) particles.splice(0, particles.length - 700);
+    // ambient spawn occasionally
+    if (Math.random() < 0.06) ambientSpawn();
 
-    // Continue loop
-    requestAnimationFrame(step);
+    requestAnimationFrame(tick);
   }
 
-  // Initial gentle burst on load, unless reduced motion
-  if(!prefersReduced){
-    const rect = document.querySelector('.card').getBoundingClientRect();
-    spawn(rect.left + rect.width/2, rect.top + rect.height/2, 180, 1.0);
-    // a timed second burst
-    setTimeout(()=> spawn(rand(0, window.innerWidth), rand(0, window.innerHeight/2), 120, 1.2), 600);
+  // pointer parallax: subtle movement of blades + chromatic layers
+  let pointer = { x: window.innerWidth/2, y: window.innerHeight/2 };
+  function onPointer(e) {
+    const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
+    const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
+    pointer.x = clientX;
+    pointer.y = clientY;
+
+    // map to small transforms
+    const nx = (clientX / window.innerWidth) - 0.5;
+    const ny = (clientY / window.innerHeight) - 0.5;
+
+    // blades move a bit based on pointer
+    bladeEls.forEach((b, i) => {
+      const depth = (i+1) * 0.6;
+      const left = (nx * 40 * depth);
+      const transY = (ny * 12 * depth);
+      b.style.transform = `translateX(${left}px) translateY(${transY}px) skewX(-18deg)`;
+    });
+
+    // subtle chromatic shift via CSS variables on root (if needed)
+    document.documentElement.style.setProperty('--px', nx.toFixed(3));
+    document.documentElement.style.setProperty('--py', ny.toFixed(3));
   }
+  window.addEventListener('pointermove', onPointer);
+  window.addEventListener('touchmove', onPointer, {passive:true});
 
-  requestAnimationFrame(step);
+  // keyboard accessibility: Enter to trigger a burst
+  window.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      burstAtCenter(1.2, Math.floor(particleCount * 0.9));
+    }
+  });
 
-  // Expose a small API in case someone wants to trigger programmatically
-  window._ahmedConfetti = {
-    spawnAtCenter(){ const r = document.querySelector('.card').getBoundingClientRect(); spawn(r.left+r.width/2, r.top+r.height/2, 180, 1.3); },
-    spawnAt(x,y,n,f){ spawn(x,y,n||120,f||1); }
+  // initial flourish
+  burstAtCenter(1.0, Math.floor(particleCount * 0.9));
+
+  // start loop
+  requestAnimationFrame(tick);
+
+  // expose API (optional)
+  window._neonBlade = {
+    burst: (intensity, count) => burstAtCenter(intensity||1.0, count||Math.floor(particleCount*0.6))
   };
-})();
+
+})(); // end IIFE
 </script>
+
+<!-- Optional noscript fallback -->
+<noscript>
+  <style>
+    .fallback{ display:block; font-size:48px; text-align:center; color:var(--neon-1); text-shadow:0 0 10px rgba(0,255,136,0.2); }
+    .particles, .blade, .volumetric, .chromatic, .grain { display:none !important; }
+  </style>
+  <div style="position:fixed; inset:0; display:grid; place-items:center; background:black; z-index:9999;">
+    <div>
+      <div class="fallback">Happy Birthday Ahmed</div>
+    </div>
+  </div>
+</noscript>
+
 </body>
-  </html>
+</html>
